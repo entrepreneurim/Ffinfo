@@ -1,36 +1,35 @@
+#!/usr/bin/env python3
+
 import requests
 import json
+import os
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
 from datetime import datetime
 
-# Bot Token from @BotFather
 BOT_TOKEN = "7221834297:AAGjlEp-qhgxwLRjNosFXG-dZHsVBfSyvQY"
-FORCE_JOIN_CHANNEL = "AxomBotz"  # Change this to your channel
-ADMIN_ID = 6987158459  # Replace with your Telegram ID
+FORCE_JOIN_CHANNEL = "AxomBotz"
+ADMIN_ID = 6987158459
 
-# Load user data
+USER_FILE = "users.json"
+
 def load_users():
-    try:
-        with open("users.json", "r") as file:
+    if os.path.exists(USER_FILE):
+        with open(USER_FILE, "r") as file:
             return json.load(file)
-    except FileNotFoundError:
-        return {}
+    return {}
 
-# Save user data
 def save_users(users):
-    with open("users.json", "w") as file:
+    with open(USER_FILE, "w") as file:
         json.dump(users, file, indent=4)
 
-# Convert timestamp to a readable format
 def format_date(timestamp):
     try:
         dt = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-        return dt.strftime("%d %B %Y, %I:%M %p")  # Example: 05 August 2020, 11:37 AM
+        return dt.strftime("%d %B %Y, %I:%M %p")
     except:
-        return timestamp  # Return as is if format is unknown
+        return timestamp
 
-# Check if user is a member of the channel
 async def is_member(user_id, bot):
     try:
         chat_member = await bot.get_chat_member(f"@{FORCE_JOIN_CHANNEL}", user_id)
@@ -38,19 +37,16 @@ async def is_member(user_id, bot):
     except:
         return False
 
-# Start command
 async def start(update: Update, context: CallbackContext):
     user_id = update.message.chat.id
     first_name = update.message.chat.first_name
     bot = context.bot
 
-    # Check if user is already in the database
     users = load_users()
     if str(user_id) not in users:
         users[str(user_id)] = first_name
         save_users(users)
 
-    # Check if the user is a member
     if not await is_member(user_id, bot):
         await update.message.reply_text(
             f"🚨 To use this bot, please join @{FORCE_JOIN_CHANNEL} first!\n\n"
@@ -61,18 +57,18 @@ async def start(update: Update, context: CallbackContext):
         )
         return
 
-    # Send welcome message with buttons
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("📊 Statistics", callback_data="stats")],
     ])
 
-    await update.message.reply_text(f"👋 Hello {first_name}, send your <b>Free Fire UID</b> to get details.", reply_markup=keyboard, parse_mode="HTML")
+    await update.message.reply_text(
+        f"👋 Hello {first_name}, send your <b>Free Fire UID</b> to get details.",
+        reply_markup=keyboard, parse_mode="HTML"
+    )
 
-# Handle UID input
 async def fetch_ff_details(update: Update, context: CallbackContext):
     uid = update.message.text.strip()
 
-    # Validate UID
     if not uid.isdigit():
         await update.message.reply_text("❌ Invalid UID! Please send a numeric Free Fire UID.")
         return
@@ -84,15 +80,12 @@ async def fetch_ff_details(update: Update, context: CallbackContext):
         await update.message.reply_text("⚠️ Player not found. Please check the UID and try again.")
         return
 
-    # Extract details
     data = response["data"]
     basic_info = data["basic_info"]
     guild = data.get("Guild", {})
 
-    # Format Account Created Date
     created_date = format_date(basic_info["account_created"])
 
-    # Formatting the response
     reply_text = f"""
 🎮 <b>Free Fire Player Details</b> 🎮
 
@@ -113,13 +106,8 @@ async def fetch_ff_details(update: Update, context: CallbackContext):
 
 📝 <b>Bio:</b> {basic_info.get("bio", "No Bio")}
 """
+    await update.message.reply_text(reply_text, parse_mode="HTML")
 
-    await update.message.reply_text(
-        reply_text,
-        parse_mode="HTML"
-    )
-
-# Handle button clicks
 async def button_handler(update: Update, context: CallbackContext):
     query = update.callback_query
     user_id = query.from_user.id
@@ -130,7 +118,6 @@ async def button_handler(update: Update, context: CallbackContext):
         await query.answer()
         await query.message.reply_text(f"📊 <b>Bot Statistics</b>\n\n👥 Total Users: <b>{total_users}</b>", parse_mode="HTML")
 
-# Admin broadcast command
 async def broadcast(update: Update, context: CallbackContext):
     user_id = update.message.chat.id
     if user_id != ADMIN_ID:
@@ -153,12 +140,11 @@ async def broadcast(update: Update, context: CallbackContext):
 
     await update.message.reply_text(f"✅ Broadcast sent to {len(users) - failed} users.\n❌ Failed to deliver to {failed} users.")
 
-# Main function
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("broadcast", broadcast, filters=filters.User(ADMIN_ID)))  # Only admin can use this
+    app.add_handler(CommandHandler("broadcast", broadcast, filters=filters.User(ADMIN_ID)))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, fetch_ff_details))
     app.add_handler(CallbackQueryHandler(button_handler))
 
