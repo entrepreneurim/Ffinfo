@@ -4,13 +4,10 @@ import requests
 import json
 import os
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import (
-    Application, CommandHandler, MessageHandler, filters,
-    CallbackContext, CallbackQueryHandler
-)
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
 from datetime import datetime
 
-BOT_TOKEN = os.environ.get("7221834297:AAFg7BL9YgPLKwg7_wN4bkgmVjqIRDAeX7s")  # Koyeb env var
+BOT_TOKEN = "7221834297:AAFg7BL9YgPLKwg7_wN4bkgmVjqIRDAeX7s"
 FORCE_JOIN_CHANNEL = "AxomBotz"
 ADMIN_ID = 6987158459
 
@@ -151,17 +148,8 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, fetch_ff_details))
     app.add_handler(CallbackQueryHandler(button_handler))
 
-    PORT = int(os.environ.get("PORT", 8080))
-    WEBHOOK_URL = f"https://{os.environ.get('scared-marj-okbos-e9e754a7')}.koyeb.app/{BOT_TOKEN}"
-
-    print("✅ Starting bot with webhook...")
-
-    app.run_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        url_path=BOT_TOKEN,
-        webhook_url=WEBHOOK_URL
-    )
+    print("✅ Bot is running...")
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
