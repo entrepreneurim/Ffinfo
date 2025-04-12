@@ -81,59 +81,30 @@ async def fetch_ff_details(update: Update, context: CallbackContext):
         return
 
     data = response["data"]
-    basic = data["basic_info"]
+    basic_info = data["basic_info"]
     guild = data.get("Guild", {})
-    pet = data.get("Pet", {})
-    activity = data.get("Account_activity", {})
-    leader = guild.get("leader", {})
+
+    created_date = format_date(basic_info["account_created"])
 
     reply_text = f"""
-🔹 <b>ACCOUNT INFO:</b>
+🎮 <b>Free Fire Player Details</b> 🎮
 
-👤 <b>BASIC INFO</b>
-├─ <b>Name:</b> {basic["name"]}
-├─ <b>UID:</b> <code>{basic["id"]}</code>
-├─ <b>Level:</b> {basic["level"]} (Exp: {basic.get("exp", "N/A")})
-├─ <b>Region:</b> {basic.get("server", "N/A")}
-├─ <b>Likes:</b> {basic.get("likes", "N/A")}
-├─ <b>Honor Score:</b> {basic.get("honor_score", "N/A")}
-├─ <b>Celebrity Status:</b> {basic.get("is_celeb", "No")}
-├─ <b>Evo Access Badge:</b> {basic.get("evo_badge", "Inactive")}
-├─ <b>Signature:</b> {basic.get("bio", "No Signature")}
-└─ <b>Last Login:</b> {format_date(basic.get("last_login", "N/A"))}
+👤 <b>Name:</b> {basic_info["name"]}
+🆔 <b>UID:</b> <code>{basic_info["id"]}</code>
+🔝 <b>Level:</b> {basic_info["level"]}
+❤️ <b>Likes:</b> {basic_info["likes"]}
+🌍 <b>Server:</b> {basic_info["server"]}
+📅 <b>Account Created:</b> {created_date}
 
-🎮 <b>ACCOUNT ACTIVITY</b>
-├─ <b>Fire Pass:</b> {activity.get("fire_pass", "N/A")}
-├─ <b>Current BP Badges:</b> {activity.get("bp_badges", "N/A")}
-├─ <b>BR Rank:</b> {activity.get("br_rank", "N/A")}
-├─ <b>CS Points:</b> {activity.get("cs_rank_points", "N/A")}
-└─ <b>Created At:</b> {format_date(basic["account_created"])}
+🏆 <b>Booyah Pass Level:</b> {basic_info["booyah_pass_level"]}
 
-🐾 <b>PET DETAILS</b>
-├─ <b>Equipped?:</b> {"Yes" if pet else "No"}
-├─ <b>Pet Name:</b> {pet.get("name", "N/A")}
-├─ <b>Pet Type:</b> {pet.get("type", "N/A")}
-├─ <b>Pet Exp:</b> {pet.get("exp", "N/A")}
-└─ <b>Pet Level:</b> {pet.get("level", "N/A")}
+🏰 <b>Guild Details</b> 🏰
+🔹 <b>Name:</b> {guild.get("name", "No Guild")}
+🔹 <b>Level:</b> {guild.get("level", "N/A")}
+🔹 <b>Members:</b> {guild.get("members_count", "N/A")}
+🔹 <b>Leader:</b> {guild.get("leader", {}).get("name", "N/A")}
 
-🛡️ <b>GUILD INFO</b>
-├─ <b>Guild Name:</b> {guild.get("name", "No Guild")}
-├─ <b>Guild ID:</b> {guild.get("id", "N/A")}
-├─ <b>Guild Level:</b> {guild.get("level", "N/A")}
-├─ <b>Live Members:</b> {guild.get("members_count", "N/A")}
-└─ <b>Leader Info:</b>
-    ├─ <b>Leader Name:</b> {leader.get("name", "N/A")}
-    ├─ <b>Leader UID:</b> {leader.get("id", "N/A")}
-    ├─ <b>Leader Level:</b> {leader.get("level", "N/A")}
-    ├─ <b>Leader Created At:</b> {format_date(leader.get("account_created", "N/A"))}
-    └─ <b>Leader Last Login:</b> {format_date(leader.get("last_login", "N/A"))}
-
-🗺️ <b>PUBLIC CRAFTLAND MAPS</b>
-<code>{data.get("craftland_maps", "No Maps Available")}</code>
-
-🎁 <b>FF INFORMATION BY -</b>
-├─• Telegram: @URxFF
-└─• Instagram: @6_hf0
+📝 <b>Bio:</b> {basic_info.get("bio", "No Bio")}
 """
     await update.message.reply_text(reply_text, parse_mode="HTML")
 
