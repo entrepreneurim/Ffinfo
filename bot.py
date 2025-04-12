@@ -10,7 +10,7 @@ from telegram.ext import (
 )
 from datetime import datetime
 
-BOT_TOKEN = os.environ.get("7221834297:AAGjlEp-qhgxwLRjNosFXG-dZHsVBfSyvQY")  # Koyeb env var
+BOT_TOKEN = os.environ.get("7221834297:AAFg7BL9YgPLKwg7_wN4bkgmVjqIRDAeX7s")  # Koyeb env var
 FORCE_JOIN_CHANNEL = "AxomBotz"
 ADMIN_ID = 6987158459
 
