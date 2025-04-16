@@ -53,6 +53,7 @@ async def start(update: Update, context: CallbackContext):
             reply_markup=InlineKeyboardMarkup([
                 [
                     InlineKeyboardButton("🔥 Join Channel 🔥", url=f"https://t.me/{FORCE_JOIN_CHANNEL}"),
+                ],[
                     InlineKeyboardButton("Check", callback_data="check")
                 ]
             ])
