@@ -7,7 +7,7 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
 from datetime import datetime
 
-BOT_TOKEN = "7221834297:AAFg7BL9YgPLKwg7_wN4bkgmVjqIRDAeX7s"
+BOT_TOKEN = "8006068020:AAEvGfxyMtv7wBA-Bq4r7o_W890FylJ05cc"
 FORCE_JOIN_CHANNEL = "AxomBotz"
 ADMIN_ID = 6987158459
 
