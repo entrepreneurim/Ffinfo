@@ -10,7 +10,6 @@ from datetime import datetime
 BOT_TOKEN = "8006068020:AAEvGfxyMtv7wBA-Bq4r7o_W890FylJ05cc"
 FORCE_JOIN_CHANNEL = "AxomBotz"
 ADMIN_ID = 6987158459
-
 USER_FILE = "users.json"
 
 def load_users():
@@ -51,13 +50,13 @@ async def start(update: Update, context: CallbackContext):
         await update.message.reply_text(
             f"🚨 To use this bot, please join first!\n\n"
             "🔹 After joining, click check.",
-            reply_markup = InlineKeyboardMarkup([
-    [
-        InlineKeyboardButton("🔥 Join Channel 🔥", url=f"https://t.me/{FORCE_JOIN_CHANNEL}"),
-        InlineKeyboardButton("Check", url=f"https://t.me/AnonymousTestingBot?start=start")
-    ]
-]
-)
+            reply_markup=InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("🔥 Join Channel 🔥", url=f"https://t.me/{FORCE_JOIN_CHANNEL}"),
+                    InlineKeyboardButton("Check", url=f"https://t.me/AnonymousTestingBot?start=start")
+                ]
+            ])
+        )
         return
 
     keyboard = InlineKeyboardMarkup([
@@ -119,7 +118,9 @@ async def button_handler(update: Update, context: CallbackContext):
         users = load_users()
         total_users = len(users)
         await query.answer()
-        await query.message.reply_text(f"📊 <b>Bot Statistics</b>\n\n👥 Total Users: <b>{total_users}</b>", parse_mode="HTML")
+        await query.message.reply_text(
+            f"📊 <b>Bot Statistics</b>\n\n👥 Total Users: <b>{total_users}</b>", parse_mode="HTML"
+        )
 
 async def broadcast(update: Update, context: CallbackContext):
     user_id = update.message.chat.id
