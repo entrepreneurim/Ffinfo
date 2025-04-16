@@ -53,7 +53,7 @@ async def start(update: Update, context: CallbackContext):
             reply_markup=InlineKeyboardMarkup([
                 [
                     InlineKeyboardButton("🔥 Join Channel 🔥", url=f"https://t.me/{FORCE_JOIN_CHANNEL}"),
-                    InlineKeyboardButton("Check", url=f"https://t.me/AnonymousTestingBot?start=start")
+                    InlineKeyboardButton("Check", callback_data="check")
                 ]
             ])
         )
@@ -113,6 +113,7 @@ async def fetch_ff_details(update: Update, context: CallbackContext):
 async def button_handler(update: Update, context: CallbackContext):
     query = update.callback_query
     user_id = query.from_user.id
+    bot = context.bot
 
     if query.data == "stats":
         users = load_users()
@@ -121,6 +122,22 @@ async def button_handler(update: Update, context: CallbackContext):
         await query.message.reply_text(
             f"📊 <b>Bot Statistics</b>\n\n👥 Total Users: <b>{total_users}</b>", parse_mode="HTML"
         )
+    
+    elif query.data == "check":
+        if await is_member(user_id, bot):
+            first_name = query.from_user.first_name
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("📊 Statistics", callback_data="stats")],
+            ])
+            await query.message.delete()
+            await bot.send_message(
+                chat_id=user_id,
+                text=f"👋 Hello {first_name}, send your <b>Free Fire UID</b> to get details.",
+                reply_markup=keyboard,
+                parse_mode="HTML"
+            )
+        else:
+            await query.answer("❌ You have not joined the channel yet.", show_alert=True)
 
 async def broadcast(update: Update, context: CallbackContext):
     user_id = update.message.chat.id
