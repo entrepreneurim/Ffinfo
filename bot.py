@@ -48,8 +48,7 @@ async def start(update: Update, context: CallbackContext):
         save_users(users)
 
     if not await is_member(user_id, bot):
-        await update.message.reply_text(
-            f"🚨 To use this bot, please join first!\n\n"
+        await update.message.reply_text(f"🚨 To use this bot, please join first!\n\n"
             "🔹 After joining, click check.",
             reply_markup = InlineKeyboardMarkup([
     [
