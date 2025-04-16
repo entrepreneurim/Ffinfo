@@ -49,12 +49,15 @@ async def start(update: Update, context: CallbackContext):
 
     if not await is_member(user_id, bot):
         await update.message.reply_text(
-            f"🚨 To use this bot, please join @{FORCE_JOIN_CHANNEL} first!\n\n"
-            "🔹 After joining, click /start again.",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔥 Join Channel 🔥", url=f"https://t.me/{FORCE_JOIN_CHANNEL}")]
-            ]),
-        )
+            f"🚨 To use this bot, please join first!\n\n"
+            "🔹 After joining, click check.",
+            reply_markup = InlineKeyboardMarkup([
+    [
+        InlineKeyboardButton("🔥 Join Channel 🔥", url=f"https://t.me/{FORCE_JOIN_CHANNEL}"),
+        InlineKeyboardButton("Check", url=f"https://t.me/AnonymousTestingBot?start=start")
+    ]
+]
+)
         return
 
     keyboard = InlineKeyboardMarkup([
