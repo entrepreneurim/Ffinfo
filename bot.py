@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 import requests
 import json
@@ -7,7 +6,7 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
 from datetime import datetime
 
-BOT_TOKEN = "8006068020:AAEvGfxyMtv7wBA-Bq4r7o_W890FylJ05cc"
+BOT_TOKEN = "8006068020:AAFABRO1VJ-AaRcVCKpd-RSftFaZAetuv_s"
 FORCE_JOIN_CHANNEL = "AxomBotz"
 ADMIN_ID = 6987158459
 USER_FILE = "users.json"
@@ -48,14 +47,11 @@ async def start(update: Update, context: CallbackContext):
 
     if not await is_member(user_id, bot):
         await update.message.reply_text(
-            f"🚨 To use this bot, please join first!\n\n"
+            "🚨 To use this bot, please join first!\n\n"
             "🔹 After joining, click check.",
             reply_markup=InlineKeyboardMarkup([
-                [
-                    InlineKeyboardButton("🔥 Join Channel 🔥", url=f"https://t.me/{FORCE_JOIN_CHANNEL}"),
-                ],[
-                    InlineKeyboardButton("Check", callback_data="check")
-                ]
+                [InlineKeyboardButton("🔥 Join Channel 🔥", url=f"https://t.me/{FORCE_JOIN_CHANNEL}")],
+                [InlineKeyboardButton("Check", callback_data="check")]
             ])
         )
         return
@@ -65,19 +61,27 @@ async def start(update: Update, context: CallbackContext):
     ])
 
     await update.message.reply_text(
-        f"👋 Hello {first_name}, send your <b>Free Fire UID</b> to get details.",
+        f"👋 Hello {first_name}, use /info command to get Free Fire UID details.\n\nExample:\n/info 123456789",
         reply_markup=keyboard, parse_mode="HTML"
     )
 
-async def fetch_ff_details(update: Update, context: CallbackContext):
-    uid = update.message.text.strip()
+async def info_command(update: Update, context: CallbackContext):
+    if len(context.args) == 0:
+        await update.message.reply_text("❌ Please provide a Free Fire UID.\n\nUsage: `/info 123456789`", parse_mode="Markdown")
+        return
+
+    uid = context.args[0].strip()
 
     if not uid.isdigit():
-        await update.message.reply_text("❌ Invalid UID! Please send a numeric Free Fire UID.")
+        await update.message.reply_text("❌ Invalid UID! Please provide a numeric UID.")
         return
 
     url = f"https://ff-info-drsudo.vercel.app/api/player-info?id={uid}"
-    response = requests.get(url).json()
+    try:
+        response = requests.get(url).json()
+    except:
+        await update.message.reply_text("⚠️ API Error. Try again later.")
+        return
 
     if response["status"] != "success":
         await update.message.reply_text("⚠️ Player not found. Please check the UID and try again.")
@@ -86,11 +90,10 @@ async def fetch_ff_details(update: Update, context: CallbackContext):
     data = response["data"]
     basic_info = data["basic_info"]
     guild = data.get("Guild", {})
-
     created_date = format_date(basic_info["account_created"])
 
     reply_text = f"""
-🎮 <b>Free Fire Player Details</b> 🎮
+<b>Free Fire Player Details</b>
 
 👤 <b>Name:</b> {basic_info["name"]}
 🆔 <b>UID:</b> <code>{basic_info["id"]}</code>
@@ -101,7 +104,7 @@ async def fetch_ff_details(update: Update, context: CallbackContext):
 
 🏆 <b>Booyah Pass Level:</b> {basic_info["booyah_pass_level"]}
 
-🏰 <b>Guild Details</b> 🏰
+🏰 <b>Guild Details</b>
 🔹 <b>Name:</b> {guild.get("name", "No Guild")}
 🔹 <b>Level:</b> {guild.get("level", "N/A")}
 🔹 <b>Members:</b> {guild.get("members_count", "N/A")}
@@ -133,7 +136,7 @@ async def button_handler(update: Update, context: CallbackContext):
             await query.message.delete()
             await bot.send_message(
                 chat_id=user_id,
-                text=f"👋 Hello {first_name}, send your <b>Free Fire UID</b> to get details.",
+                text=f"👋 Hello {first_name}, use /info command to get Free Fire UID details.\n\nExample:\n/info 123456789",
                 reply_markup=keyboard,
                 parse_mode="HTML"
             )
@@ -167,7 +170,7 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("broadcast", broadcast, filters=filters.User(ADMIN_ID)))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, fetch_ff_details))
+    app.add_handler(CommandHandler("info", info_command))
     app.add_handler(CallbackQueryHandler(button_handler))
 
     print("✅ Bot is running...")
